@@ -1,0 +1,326 @@
+@startuml Sistema de Gestión Coworking
+
+' ============================================
+' CONFIGURACIÓN DE ESTILO
+' ============================================
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FEFEFE
+skinparam class {
+    BackgroundColor<<Model>> LightBlue
+    BackgroundColor<<Controller>> LightGreen
+    BackgroundColor<<View>> LightYellow
+    BackgroundColor<<Repository>> Wheat
+    BackgroundColor<<Service>> LightCoral
+    BorderColor Black
+    ArrowColor Black
+}
+
+' ============================================
+' CAPA DE MODELOS
+' ============================================
+package "Models" {
+    class Miembro <<Model>> {
+        - id: Integer
+        - nombre: String
+        - email: String
+        - telefono: String
+        - plan: String
+        - fecha_registro: Time
+        - activo: Boolean
+        --
+        + initialize(id, nombre, email, telefono, plan)
+        + self.from_csv(row): Miembro
+        + to_csv_array(): Array
+        + activo?(): Boolean
+        + premium?(): Boolean
+        + profesional?(): Boolean
+        + descuento(): Float
+        + to_s(): String
+        --
+        {static} PLANES: Hash
+    }
+
+    class Espacio <<Model>> {
+        - id: Integer
+        - nombre: String
+        - tipo: String
+        - capacidad: Integer
+        - precio_hora: Float
+        - descripcion: String
+        - activo: Boolean
+        --
+        + initialize(id, nombre, tipo, capacidad, precio_hora, descripcion)
+        + self.from_csv(row): Espacio
+        + to_csv_array(): Array
+        + disponible?(): Boolean
+        + activo?(): Boolean
+        + calcular_precio(horas, descuento): Float
+        + to_s(): String
+        - validar_tipo(tipo): String
+        --
+        {static} TIPOS: Hash
+    }
+
+    class Reserva <<Model>> {
+        - id: Integer
+        - miembro_id: Integer
+        - espacio_id: Integer
+        - fecha: String
+        - hora_inicio: String
+        - hora_fin: String
+        - estado: String
+        - fecha_creacion: Time
+        - notas: String
+        --
+        + initialize(id, miembro_id, espacio_id, fecha, hora_inicio, hora_fin, notas)
+        + self.from_csv(row): Reserva
+        + to_csv_array(): Array
+        + duracion_horas(): Float
+        + activa?(): Boolean
+        + cancelar(): void
+        + completar(): void
+        + to_s(): String
+        --
+        {static} ESTADOS: Array
+    }
+}
+
+' ============================================
+' CAPA DE REPOSITORIOS
+' ============================================
+package "Repositories" {
+    abstract class Repository <<Repository>> {
+        # data: Array
+        --
+        + initialize()
+        + add(item): Object
+        + all(): Array
+        + find_by_id(id): Object
+        + find_all_by(attribute, value): Array
+        + update(id, attributes): Boolean
+        + delete(id): void
+        + count(): Integer
+        + next_id(): Integer
+        # {abstract} load_data(): void
+        # {abstract} save(): void
+    }
+
+    class CSVRepository <<Repository>> {
+        - file_path: String
+        - model_class: Class
+        --
+        + initialize(file_path, model_class)
+        # load_data(): void
+        # save(): void
+        - ensure_file_exists(): void
+        - headers(): Array
+    }
+}
+
+' ============================================
+' CAPA DE CONTROLADORES
+' ============================================
+package "Controllers" {
+    class MiembroController <<Controller>> {
+        - repo: Repository
+        - view: MiembroView
+        --
+        + initialize(miembro_repo)
+        + crear_miembro(): void
+        + listar_miembros(): void
+        + buscar_miembro(): void
+        + actualizar_plan(): void
+        + desactivar_miembro(): void
+    }
+
+    class EspacioController <<Controller>> {
+        - repo: Repository
+        - view: EspacioView
+        --
+        + initialize(espacio_repo)
+        + crear_espacio(): void
+        + listar_espacios(): void
+        + listar_por_tipo(): void
+        + desactivar_espacio(): void
+    }
+
+    class ReservaController <<Controller>> {
+        - reserva_repo: Repository
+        - miembro_repo: Repository
+        - espacio_repo: Repository
+        - view: ReservaView
+        --
+        + initialize(reserva_repo, miembro_repo, espacio_repo)
+        + crear_reserva(): void
+        + listar_reservas_miembro(): void
+        + listar_reservas_espacio(): void
+        + ver_disponibilidad(): void
+        + cancelar_reserva(): void
+        + generar_reporte(): void
+    }
+}
+
+' ============================================
+' CAPA DE VISTAS
+' ============================================
+package "Views" {
+    class MiembroView <<View>> {
+        + obtener_datos_nuevo_miembro(): Hash
+        + mostrar_lista_miembros(miembros): void
+        + mostrar_detalles_miembro(miembro): void
+        + obtener_id(): String
+        + obtener_plan(): String
+        + mostrar_exito(mensaje): void
+        + mostrar_error(mensaje): void
+    }
+
+    class EspacioView <<View>> {
+        + obtener_datos_nuevo_espacio(): Hash
+        + mostrar_lista_espacios(espacios): void
+        + obtener_tipo_espacio(): String
+        + obtener_id(): String
+        + mostrar_exito(mensaje): void
+        + mostrar_error(mensaje): void
+    }
+
+    class ReservaView <<View>> {
+        + obtener_datos_nueva_reserva(): Hash
+        + mostrar_lista_reservas(reservas, miembro, espacio): void
+        + mostrar_alternativas(espacios): void
+        + obtener_disponibilidad_params(): Hash
+        + obtener_miembro_id(): String
+        + obtener_espacio_id(): String
+        + obtener_id(): String
+        + obtener_fecha(): String
+        + mostrar_reporte_dia(fecha, reservas, miembros, espacios): void
+        + mostrar_lista_espacios(espacios): void
+        + mostrar_exito(mensaje): void
+        + mostrar_error(mensaje): void
+        + mostrar_info(mensaje): void
+        + confirmar_cancelacion(reserva): Boolean
+    }
+
+    class MenuPrincipalView <<View>> {
+        + mostrar_menu_principal(): void
+        + limpiar_pantalla(): void
+    }
+}
+
+' ============================================
+' SERVICIOS Y UTILIDADES
+' ============================================
+package "Services" {
+    class GestorHorarios <<Service>> {
+        + {static} hay_conflicto?(reservas, espacio_id, fecha, hora_inicio, hora_fin): Boolean
+        + {static} espacios_disponibles(espacios, reservas, fecha, hora_inicio, hora_fin): Array
+        + {static} reservas_del_dia(reservas, fecha): Array
+    }
+
+    class ValidadorMiembro <<Service>> {
+        + {static} valido?(nombre, email, telefono): Boolean
+        - {static} nombre_valido?(nombre): Boolean
+        - {static} email_valido?(email): Boolean
+        - {static} telefono_valido?(telefono): Boolean
+    }
+
+    class ValidadorEspacio <<Service>> {
+        + {static} valido?(nombre, tipo, capacidad, precio): Boolean
+    }
+
+    class ValidadorReserva <<Service>> {
+        + {static} valido?(fecha, hora_inicio, hora_fin, miembro_id): Boolean
+        - {static} fecha_valida?(fecha): Boolean
+        - {static} horarios_validos?(hora_inicio, hora_fin): Boolean
+    }
+}
+
+' ============================================
+' APLICACIÓN PRINCIPAL
+' ============================================
+class CoworkingApp {
+    - miembro_repo: CSVRepository
+    - espacio_repo: CSVRepository
+    - reserva_repo: CSVRepository
+    - miembro_controller: MiembroController
+    - espacio_controller: EspacioController
+    - reserva_controller: ReservaController
+    - menu_view: MenuPrincipalView
+    --
+    + initialize()
+    + ejecutar(): void
+    - create_data_directory(): void
+    - reiniciar_repositorios(): void
+}
+
+' ============================================
+' RELACIONES DE HERENCIA
+' ============================================
+Repository <|-- CSVRepository
+
+' ============================================
+' RELACIONES DE COMPOSICIÓN
+' ============================================
+CSVRepository "1" *-- "0..*" Miembro : gestiona >
+CSVRepository "1" *-- "0..*" Espacio : gestiona >
+CSVRepository "1" *-- "0..*" Reserva : gestiona >
+
+' ============================================
+' RELACIONES DE ASOCIACIÓN (Controladores)
+' ============================================
+MiembroController --> CSVRepository : usa >
+MiembroController --> MiembroView : usa >
+MiembroController ..> ValidadorMiembro : valida con >
+
+EspacioController --> CSVRepository : usa >
+EspacioController --> EspacioView : usa >
+EspacioController ..> ValidadorEspacio : valida con >
+
+ReservaController --> CSVRepository : usa >
+ReservaController --> ReservaView : usa >
+ReservaController ..> ValidadorReserva : valida con >
+ReservaController ..> GestorHorarios : usa >
+
+' ============================================
+' RELACIONES DE ASOCIACIÓN (Modelos)
+' ============================================
+Reserva --> Miembro : referencia
+Reserva --> Espacio : referencia
+
+' ============================================
+' RELACIONES CON LA APP PRINCIPAL
+' ============================================
+CoworkingApp *-- MiembroController
+CoworkingApp *-- EspacioController
+CoworkingApp *-- ReservaController
+CoworkingApp *-- MenuPrincipalView
+CoworkingApp --> CSVRepository : crea >
+
+' ============================================
+' NOTAS Y LEYENDA
+' ============================================
+note right of Repository
+  Clase abstracta que define
+  la interfaz común para todos
+  los repositorios
+end note
+
+note right of CSVRepository
+  Implementación concreta que
+  persiste datos en archivos CSV
+end note
+
+note bottom of GestorHorarios
+  Servicio para validar
+  disponibilidad de espacios
+  y gestionar horarios
+end note
+
+legend right
+  |<back:LightBlue>   </back>| Modelos |
+  |<back:LightGreen>   </back>| Controladores |
+  |<back:LightYellow>   </back>| Vistas |
+  |<back:Wheat>   </back>| Repositorios |
+  |<back:LightCoral>   </back>| Servicios |
+endlegend
+
+@enduml

@@ -1,0 +1,7 @@
+id,nombre,email,telefono,plan,fecha_registro,activo
+1,Ana García,ana.garcia@gmail.com,3001234567,premium,2025-11-05 14:31:16,true
+2,Carlos López,carlos.lopez@outlook.com,3109876543,profesional,2025-11-05 14:31:16,true
+3,María Rodríguez,maria.rodriguez@hotmail.com,3205551234,basico,2025-11-05 14:31:16,true
+4,Juan Martínez,juan.martinez@empresa.com,3157778888,premium,2025-11-05 14:31:16,true
+5,Laura Sánchez,laura.sanchez@correo.co,3183334444,profesional,2025-11-05 14:31:16,true
+6,Pedro Gómez,pedro.gomez@mail.com,3009991111,basico,2025-11-05 14:31:16,true

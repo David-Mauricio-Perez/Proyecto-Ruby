@@ -1,0 +1,13 @@
+id,miembro_id,espacio_id,fecha,hora_inicio,hora_fin,estado,fecha_creacion,notas
+1,1,5,2025-11-05,09:00,12:00,confirmada,2025-11-05 14:31:16,Reunión con clientes importantes
+2,2,1,2025-11-05,08:00,17:00,confirmada,2025-11-05 14:31:16,Jornada completa de trabajo
+3,3,3,2025-11-05,14:00,16:00,confirmada,2025-11-05 14:31:16,Presentación de proyecto
+4,4,2,2025-11-05,10:00,13:00,confirmada,2025-11-05 14:31:16,Desarrollo de software
+5,1,7,2025-11-06,15:00,18:00,confirmada,2025-11-05 14:31:16,Workshop de innovación
+6,5,4,2025-11-06,09:00,11:00,confirmada,2025-11-05 14:31:16,Reunión de equipo
+7,2,6,2025-11-06,08:00,12:00,confirmada,2025-11-05 14:31:16,Sesión de diseño
+8,6,8,2025-11-06,13:00,17:00,confirmada,2025-11-05 14:31:16,Trabajo remoto
+9,3,3,2025-11-06,10:00,12:00,confirmada,2025-11-05 14:31:16,Reunión con inversionistas
+10,4,5,2025-11-07,09:00,17:00,confirmada,2025-11-05 14:31:16,Día completo de consultoría
+11,1,1,2025-11-07,08:00,10:00,confirmada,2025-11-05 14:31:16,Concentración individual
+12,5,7,2025-11-07,16:00,20:00,confirmada,2025-11-05 14:31:16,Evento de networking

@@ -1,0 +1,9 @@
+id,nombre,tipo,capacidad,precio_hora,descripcion,activo
+1,Escritorio Individual A1,escritorio,1,5000.0,Escritorio con vista a la ciudad,true
+2,Escritorio Individual B2,escritorio,1,4500.0,Escritorio en zona tranquila,true
+3,Sala de Reuniones Innovación,sala_reunion,8,25000.0,Sala con TV 4K y pizarra digital,true
+4,Sala de Reuniones Colaboración,sala_reunion,6,20000.0,Sala equipada para videoconferencias,true
+5,Oficina Privada Premium,privada,4,35000.0,Oficina privada con baño propio,true
+6,Oficina Privada Estándar,privada,2,28000.0,Oficina privada con escritorios dobles,true
+7,Salón de Eventos Principal,evento,50,80000.0,Salón con escenario y sistema de audio,true
+8,Sala Coworking Abierta,escritorio,15,3000.0,Espacio compartido con mesas amplias,true
